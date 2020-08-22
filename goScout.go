@@ -1,23 +1,26 @@
-package main
+package goScout
 
 import (
-	"github.com/KnutZuidema/golio"
 	"github.com/KnutZuidema/golio/api"
+	"github.com/matcarter/goScout/riot"
 	"github.com/sirupsen/logrus"
 )
 
 type Scout struct {
 	apiKey string
-	client *golio.Client
+	logger logrus.FieldLogger
+	region api.Region
+	riot   *riot.Client
 }
 
-func NewScout(apiKey string) *Scout {
+func NewScout(apiKey string, region string) *Scout {
 	s := &Scout{
 		apiKey: apiKey,
-		client: golio.NewClient(apiKey,
-			golio.WithRegion(api.RegionNorthAmerica),
-			golio.WithLogger(logrus.New().WithField("foo", "bar"))),
+		logger: logrus.StandardLogger(),
+		region: api.Region(region),
 	}
+
+	s.riot = riot.NewClient(s.apiKey, s.region, s.logger)
 
 	return s
 }
