@@ -1,6 +1,7 @@
 package lol
 
 import (
+	"github.com/matcarter/goScout/api"
 	"github.com/matcarter/goScout/internal"
 	"github.com/sirupsen/logrus"
 )
@@ -13,8 +14,9 @@ func (s *SummonerClient) ScoutByName(name string) (*SummonerReport, error) {
 	summonerData, err := s.gatherDataByName(name)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "ScoutByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to gather data for summoner")
 		return nil, err
 	}
@@ -25,8 +27,9 @@ func (s *SummonerClient) ScoutByName(name string) (*SummonerReport, error) {
 	analyzedData, err := s.AnalyzeData(summonerData)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "ScoutByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to analyze summoner data")
 		return nil, err
 	}
@@ -37,8 +40,9 @@ func (s *SummonerClient) ScoutByName(name string) (*SummonerReport, error) {
 	summonerReport, err := s.GenerateSummonerReport(analyzedData)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "ScoutByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to generate report for summoner")
 		return nil, err
 	}
@@ -53,8 +57,9 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 	summoner, err := s.c.Golio.Riot.LoL.Summoner.GetByName(name)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "gatherDataByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to fetch summoner")
 		return nil, err
 	}
@@ -69,8 +74,9 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 	masteries, err := s.c.Golio.Riot.LoL.ChampionMastery.List(summoner.ID)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "gatherDataByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to fetch summoner masteries")
 		return nil, err
 	}
@@ -83,8 +89,9 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 	matches, err := s.c.Golio.Riot.LoL.Match.List(summoner.AccountID, 0, 100)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"name": name,
-			"err":  err,
+			"method": "gatherDataByName",
+			"name":   name,
+			"err":    err,
 		}).Warn("Failed to fetch summoner matches")
 		return nil, err
 	}
@@ -98,7 +105,20 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 }
 
 func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (*SummonerDataAnalysis, error) {
-	return nil, nil
+	if summonerData == nil {
+		s.logger().WithFields(logrus.Fields{
+			"method": "AnalyzeData",
+		}).Warn("Cannot analyze nil data")
+
+		return nil, api.ErrNilSummonerData
+	}
+
+	analysis := &SummonerDataAnalysis{
+		Summoner:       summonerData.Summoner,
+		HighestMastery: summonerData.Mastery[:10],
+	}
+
+	return analysis, nil
 }
 
 func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (*SummonerReport, error) {
