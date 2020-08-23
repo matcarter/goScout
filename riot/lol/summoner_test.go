@@ -38,3 +38,7 @@ func TestSummonerClient_ScoutByName(t *testing.T) {
 	require.Nil(t, err)
 	require.NotNil(t, report)
 }
+
+func TestSummonerClient_AnalyzeData(t *testing.T) {
+
+}
