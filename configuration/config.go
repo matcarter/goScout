@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"encoding/json"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 )
 
@@ -10,11 +11,30 @@ type Config struct {
 	Region string `json:"region"`
 }
 
-func GetConfig(filename string) (*Config, error) {
-	file, _ := ioutil.ReadFile(filename)
-	config := &Config{}
+func GetConfig(filename string) (config *Config, err error) {
+	logger := logrus.StandardLogger()
 
-	err := json.Unmarshal(file, &config)
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"method":   "GetConfig",
+			"filename": filename,
+			"err":      err,
+		}).Warn("Failed to open config file")
+
+		return nil, err
+	}
+
+	err = json.Unmarshal(file, &config)
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			"method":   "GetConfig",
+			"filename": filename,
+			"err":      err,
+		}).Warn("Failed to unmarshal config file")
+
+		return nil, err
+	}
 
 	return config, err
 }
