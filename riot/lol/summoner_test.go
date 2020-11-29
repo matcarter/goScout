@@ -2,8 +2,8 @@ package lol
 
 import (
 	"github.com/KnutZuidema/golio/api"
-	"github.com/matcarter/goScout/configuration"
 	"github.com/matcarter/goScout/internal"
+	"github.com/matcarter/goScout/internal/configuration"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"testing"
