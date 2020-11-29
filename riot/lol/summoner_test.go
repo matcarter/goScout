@@ -2,17 +2,17 @@ package lol
 
 import (
 	"github.com/KnutZuidema/golio/api"
-	"github.com/matcarter/goScout/configs"
+	"github.com/matcarter/goScout/configuration"
 	"github.com/matcarter/goScout/internal"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-var configFile = "../../configs/config.json"
+var configFile = "../../configuration/init.json"
 
 func TestNewClient(t *testing.T) {
-	config, err := configs.GetConfig(configFile)
+	config, err := configuration.GetConfig(configFile)
 	require.Nil(t, err)
 	require.NotNil(t, config)
 
@@ -24,7 +24,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestSummonerClient_ScoutByName(t *testing.T) {
-	config, err := configs.GetConfig(configFile)
+	config, err := configuration.GetConfig(configFile)
 	require.Nil(t, err)
 	require.NotNil(t, config)
 
