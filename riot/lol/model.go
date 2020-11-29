@@ -38,4 +38,7 @@ type SummonerDataAnalysis struct {
 
 // SummonerReport outlines the final report of the analyzed data within SummonerDataAnalysis
 type SummonerReport struct {
+	Name        string
+	Level       int
+	LastUpdated int
 }

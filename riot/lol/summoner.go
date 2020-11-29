@@ -13,9 +13,9 @@ type SummonerClient struct {
 
 // ScoutByName takes a summoner name as a string and creates a SummonerReport from the raw data pulled from the Riot
 // API tied to that summoner name
-func (s *SummonerClient) ScoutByName(name string) (*SummonerReport, error) {
+func (s *SummonerClient) ScoutByName(name string) (report *SummonerReport, err error) {
 	// Gather raw data from the Riot API
-	summonerData, err := s.gatherDataByName(name)
+	summonerData, err := s.GatherDataByName(name)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "ScoutByName",
@@ -62,14 +62,14 @@ func (s *SummonerClient) ScoutByName(name string) (*SummonerReport, error) {
 	return summonerReport, nil
 }
 
-// gatherDataByName pulls all relevant data from the Riot API given a name and stores it within a SummonerData
+// GatherDataByName pulls all relevant data from the Riot API given a name and stores it within a SummonerData
 // struct that is then returned
-func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
+func (s *SummonerClient) GatherDataByName(name string) (data *SummonerData, err error) {
 	// Query the Riot API's GetByName method to get account information relating to said name
 	summoner, err := s.c.Golio.Riot.LoL.Summoner.GetByName(name)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"method": "gatherDataByName",
+			"method": "GatherDataByName",
 			"name":   name,
 			"err":    err,
 		}).Warn("Failed to fetch summoner")
@@ -87,7 +87,7 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 	masteries, err := s.c.Golio.Riot.LoL.ChampionMastery.List(summoner.ID)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"method": "gatherDataByName",
+			"method": "GatherDataByName",
 			"name":   name,
 			"err":    err,
 		}).Warn("Failed to fetch summoner masteries")
@@ -103,7 +103,7 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 	matches, err := s.c.Golio.Riot.LoL.Match.List(summoner.AccountID, 0, 100)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
-			"method": "gatherDataByName",
+			"method": "GatherDataByName",
 			"name":   name,
 			"err":    err,
 		}).Warn("Failed to fetch summoner matches")
@@ -120,7 +120,7 @@ func (s *SummonerClient) gatherDataByName(name string) (*SummonerData, error) {
 
 // AnalyzeData analyzes the raw data stored within a SummonerData struct, finds key information within the raw data,
 // and returns it in the form of a SummonerDataAnalysis struct
-func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (*SummonerDataAnalysis, error) {
+func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (analysis *SummonerDataAnalysis, err error) {
 	if summonerData == nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "AnalyzeData",
@@ -129,7 +129,7 @@ func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (*SummonerDataA
 		return nil, api.ErrNilSummonerData
 	}
 
-	analysis := &SummonerDataAnalysis{
+	analysis = &SummonerDataAnalysis{
 		Summoner:       summonerData.Summoner,
 		HighestMastery: summonerData.Mastery[:10],
 	}
@@ -138,7 +138,7 @@ func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (*SummonerDataA
 }
 
 // GenerateSummonerReport formats the given SummonerDataAnalysis in a way meaningful to the user
-func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (*SummonerReport, error) {
+func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (report *SummonerReport, err error) {
 	return nil, nil
 }
 
