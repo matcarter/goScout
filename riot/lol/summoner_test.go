@@ -12,81 +12,191 @@ import (
 var configFile = "../../internal/configuration/init.json"
 
 func TestSummonerClient_ScoutByName(t *testing.T) {
-	config, err := configuration.GetConfig(configFile)
-	require.Nil(t, err)
-	require.NotNil(t, config)
+	tests := []struct {
+		name     string
+		summoner string
+		wantErr  bool
+	}{
+		{
+			name:    "Bad case: nil summoner name",
+			wantErr: true,
+		},
+		{
+			name:     "Bad case: no summoner name provided",
+			summoner: "",
+			wantErr:  true,
+		},
+		{
+			name:     "Good case: summoner exists in config region",
+			summoner: "Bully",
+			wantErr:  false,
+		},
+		{
+			name:     "Bad case: summoner name is too long",
+			summoner: "this summoner name is way too long and does not exist",
+			wantErr:  true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config, err := configuration.GetConfig(configFile)
+			require.Nil(t, err)
+			require.NotNil(t, config)
 
-	base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
-	require.NotNil(t, err)
-	require.NotNil(t, base)
+			base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
+			require.Nil(t, err)
+			require.NotNil(t, base)
 
-	lolClient, err := NewClient(base)
-	require.NotNil(t, err)
-	require.NotNil(t, lolClient)
+			lolClient, err := NewClient(base)
+			require.Nil(t, err)
+			require.NotNil(t, lolClient)
 
-	report, err := lolClient.Summoner.ScoutByName("Bully")
-	require.Nil(t, err)
-	require.NotNil(t, report)
+			report, err := lolClient.Summoner.ScoutByName(tt.summoner)
+			if tt.wantErr {
+				require.NotNil(t, err)
+				require.Nil(t, report)
+			} else {
+				require.Nil(t, err)
+				require.NotNil(t, report)
+			}
+		})
+	}
 }
 
 func TestSummonerClient_GatherDataByName(t *testing.T) {
-	config, err := configuration.GetConfig(configFile)
-	require.Nil(t, err)
-	require.NotNil(t, config)
+	tests := []struct {
+		name     string
+		summoner string
+		wantErr  bool
+	}{
+		{
+			name:    "Bad case: nil summoner name",
+			wantErr: true,
+		},
+		{
+			name:     "Bad case: no summoner name provided",
+			summoner: "",
+			wantErr:  true,
+		},
+		{
+			name:     "Good case: summoner exists in config region",
+			summoner: "Bully",
+			wantErr:  false,
+		},
+		{
+			name:     "Bad case: summoner name is too long",
+			summoner: "this summoner name is way too long and does not exist",
+			wantErr:  true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config, err := configuration.GetConfig(configFile)
+			require.Nil(t, err)
+			require.NotNil(t, config)
 
-	base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
-	require.NotNil(t, err)
-	require.NotNil(t, base)
+			base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
+			require.Nil(t, err)
+			require.NotNil(t, base)
 
-	lolClient, err := NewClient(base)
-	require.NotNil(t, err)
-	require.NotNil(t, lolClient)
+			lolClient, err := NewClient(base)
+			require.Nil(t, err)
+			require.NotNil(t, lolClient)
 
-	data, err := lolClient.Summoner.GatherDataByName("Bully")
-	require.Nil(t, err)
-	require.NotNil(t, data)
-}
-
-func TestSummonerClient_GatherDataByName_Name_Error(t *testing.T) {
-	config, err := configuration.GetConfig(configFile)
-	require.Nil(t, err)
-	require.NotNil(t, config)
-
-	base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
-	require.NotNil(t, err)
-	require.NotNil(t, base)
-
-	lolClient, err := NewClient(base)
-	require.NotNil(t, err)
-	require.NotNil(t, lolClient)
-
-	data, err := lolClient.Summoner.GatherDataByName("this is a really long name that can't exist")
-	require.NotNil(t, err)
-	require.Nil(t, data)
+			data, err := lolClient.Summoner.GatherDataByName(tt.summoner)
+			if tt.wantErr {
+				require.NotNil(t, err)
+				require.Nil(t, data)
+			} else {
+				require.Nil(t, err)
+				require.NotNil(t, data)
+			}
+		})
+	}
 }
 
 func TestSummonerClient_AnalyzeData(t *testing.T) {
+	tests := []struct {
+		name         string
+		summonerData *SummonerData
+		wantErr      bool
+	}{
+		{
+			name:         "Bad case: nil summoner data",
+			summonerData: nil,
+			wantErr:      true,
+		},
+		{
+			name:         "Good case: non-nil summoner data",
+			summonerData: &SummonerData{},
+			wantErr:      false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config, err := configuration.GetConfig(configFile)
+			require.Nil(t, err)
+			require.NotNil(t, config)
 
-}
+			base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
+			require.Nil(t, err)
+			require.NotNil(t, base)
 
-func TestSummonerClient_AnalyzeData_Nil_Error(t *testing.T) {
-	config, err := configuration.GetConfig(configFile)
-	require.Nil(t, err)
-	require.NotNil(t, config)
+			lolClient, err := NewClient(base)
+			require.Nil(t, err)
+			require.NotNil(t, lolClient)
 
-	base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
-	require.NotNil(t, err)
-	require.NotNil(t, base)
-
-	lolClient, err := NewClient(base)
-	require.NotNil(t, err)
-	require.NotNil(t, lolClient)
-
-	analysis, err := lolClient.Summoner.AnalyzeData(nil)
-	require.NotNil(t, err)
-	require.Nil(t, analysis)
+			analysis, err := lolClient.Summoner.AnalyzeData(tt.summonerData)
+			if tt.wantErr {
+				require.NotNil(t, err)
+				require.Nil(t, analysis)
+			} else {
+				require.Nil(t, err)
+				require.NotNil(t, analysis)
+			}
+		})
+	}
 }
 
 func TestSummonerClient_GenerateSummonerReport(t *testing.T) {
+	tests := []struct {
+		name         string
+		analyzedData *SummonerDataAnalysis
+		wantErr      bool
+	}{
+		{
+			name:         "Bad case: nil summoner data",
+			analyzedData: nil,
+			wantErr:      true,
+		},
+		{
+			name:         "Good case: non-nil summoner data",
+			analyzedData: &SummonerDataAnalysis{},
+			wantErr:      false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config, err := configuration.GetConfig(configFile)
+			require.Nil(t, err)
+			require.NotNil(t, config)
 
+			base, err := internal.NewClient(config.APIKey, api.Region(config.Region), logrus.StandardLogger())
+			require.Nil(t, err)
+			require.NotNil(t, base)
+
+			lolClient, err := NewClient(base)
+			require.Nil(t, err)
+			require.NotNil(t, lolClient)
+
+			analysis, err := lolClient.Summoner.GenerateSummonerReport(tt.analyzedData)
+			if tt.wantErr {
+				require.NotNil(t, err)
+				require.Nil(t, analysis)
+			} else {
+				require.Nil(t, err)
+				require.NotNil(t, analysis)
+			}
+		})
+	}
 }

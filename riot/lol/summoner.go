@@ -129,9 +129,16 @@ func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (analysis *Summ
 		return nil, api.ErrNilSummonerData
 	}
 
+	summoner := summonerData.Summoner
+
+	highestMastery := summonerData.Mastery
+	if len(highestMastery) > 10 {
+		highestMastery = highestMastery[:10]
+	}
+
 	analysis = &SummonerDataAnalysis{
-		Summoner:       summonerData.Summoner,
-		HighestMastery: summonerData.Mastery[:10],
+		Summoner:       summoner,
+		HighestMastery: highestMastery,
 	}
 
 	return analysis, nil
@@ -139,7 +146,15 @@ func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (analysis *Summ
 
 // GenerateSummonerReport formats the given SummonerDataAnalysis in a way meaningful to the user
 func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (report *SummonerReport, err error) {
-	return nil, nil
+	if analyzedData == nil {
+		s.logger().WithFields(logrus.Fields{
+			"method": "GenerateSummonerReport",
+		}).Warn("Cannot generate report from nil analyzed data")
+
+		return nil, api.ErrNilAnalyzedData
+	}
+
+	return &SummonerReport{}, nil
 }
 
 // logger prepends the logger for the summoner module with a named tag
