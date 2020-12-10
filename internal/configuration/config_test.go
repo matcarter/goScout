@@ -18,7 +18,7 @@ func TestGetConfig(t *testing.T) {
 		},
 		{
 			name:    "Good case: config file found",
-			path:    "../../internal/configuration/init.json",
+			path:    "init.json",
 			wantErr: false,
 		},
 	}

@@ -14,7 +14,7 @@ func TestNewScout(t *testing.T) {
 	}{
 		{
 			name:    "Good case: config file found",
-			path:    "../../internal/configuration/init.json",
+			path:    "internal/configuration/init.json",
 			wantErr: false,
 		},
 	}
@@ -24,8 +24,13 @@ func TestNewScout(t *testing.T) {
 			require.Nil(t, err)
 
 			scout, err := NewScout(config.APIKey, config.Region)
-			require.Nil(t, err)
-			require.NotNil(t, scout)
+			if tt.wantErr {
+				require.NotNil(t, err)
+				require.Nil(t, scout)
+			} else {
+				require.Nil(t, err)
+				require.NotNil(t, scout)
+			}
 		})
 	}
 }
