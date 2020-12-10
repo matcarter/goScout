@@ -6,13 +6,26 @@ import (
 	"testing"
 )
 
-var configFile = "internal/configuration/init.json"
-
 func TestNewScout(t *testing.T) {
-	config, err := configuration.GetConfig(configFile)
-	require.Nil(t, err)
+	tests := []struct {
+		name    string
+		path    string
+		wantErr bool
+	}{
+		{
+			name:    "Good case: config file found",
+			path:    "../../internal/configuration/init.json",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config, err := configuration.GetConfig(tt.path)
+			require.Nil(t, err)
 
-	scout, err := NewScout(config.APIKey, config.Region)
-	require.Nil(t, err)
-	require.NotNil(t, scout)
+			scout, err := NewScout(config.APIKey, config.Region)
+			require.Nil(t, err)
+			require.NotNil(t, scout)
+		})
+	}
 }
