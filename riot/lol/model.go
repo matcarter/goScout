@@ -1,6 +1,8 @@
 package lol
 
 import (
+	"fmt"
+
 	"github.com/KnutZuidema/golio/riot/lol"
 )
 
@@ -19,8 +21,16 @@ type SummonerData struct {
 }
 
 // GetHighestMastery returns the data about which champion the summoner has the highest mastery for
-func (sd *SummonerData) GetHighestMastery(n int) []*lol.ChampionMastery {
-	return sd.Mastery[:n]
+func (sd *SummonerData) GetHighestMastery(n int) (highestMastery []*lol.ChampionMastery, err error) {
+	if n < 0 {
+		return nil, fmt.Errorf("error execpted n [%d] to be greater than 0", n)
+	}
+
+	if n > len(sd.Mastery) {
+		return nil, fmt.Errorf("error expected n [%d] to be less than or equal to mastery [%d]", n, len(sd.Mastery))
+	}
+
+	return sd.Mastery[:n], nil
 }
 
 // SummonerDataAnalysis outlines hand-crafted data points collected through the analysis of the raw data contained
