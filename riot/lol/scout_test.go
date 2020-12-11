@@ -1,12 +1,13 @@
 package lol
 
 import (
+	"testing"
+
 	"github.com/KnutZuidema/golio/api"
 	"github.com/matcarter/goScout/internal"
 	"github.com/matcarter/goScout/internal/configuration"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 var configFile = "../../internal/configuration/init.json"
@@ -51,7 +52,7 @@ func TestSummonerClient_ScoutByName(t *testing.T) {
 			require.Nil(t, err)
 			require.NotNil(t, lolClient)
 
-			report, err := lolClient.Summoner.ScoutByName(tt.summoner)
+			report, err := lolClient.Scout.ScoutByName(tt.summoner)
 			if tt.wantErr {
 				require.NotNil(t, err)
 				require.Nil(t, report)
@@ -103,7 +104,7 @@ func TestSummonerClient_GatherDataByName(t *testing.T) {
 			require.Nil(t, err)
 			require.NotNil(t, lolClient)
 
-			data, err := lolClient.Summoner.GatherDataByName(tt.summoner)
+			data, err := lolClient.Scout.GatherDataByName(tt.summoner)
 			if tt.wantErr {
 				require.NotNil(t, err)
 				require.Nil(t, data)
@@ -146,7 +147,7 @@ func TestSummonerClient_AnalyzeData(t *testing.T) {
 			require.Nil(t, err)
 			require.NotNil(t, lolClient)
 
-			analysis, err := lolClient.Summoner.AnalyzeData(tt.summonerData)
+			analysis, err := lolClient.Scout.AnalyzeData(tt.summonerData)
 			if tt.wantErr {
 				require.NotNil(t, err)
 				require.Nil(t, analysis)
@@ -189,7 +190,7 @@ func TestSummonerClient_GenerateSummonerReport(t *testing.T) {
 			require.Nil(t, err)
 			require.NotNil(t, lolClient)
 
-			analysis, err := lolClient.Summoner.GenerateSummonerReport(tt.analyzedData)
+			analysis, err := lolClient.Scout.GenerateSummonerReport(tt.analyzedData)
 			if tt.wantErr {
 				require.NotNil(t, err)
 				require.Nil(t, analysis)

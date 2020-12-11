@@ -6,14 +6,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// SummonerClient allows access to the internal client
-type SummonerClient struct {
+// ScoutClient allows access to the internal client
+type ScoutClient struct {
 	c *internal.Client
 }
 
 // ScoutByName takes a summoner name as a string and creates a SummonerReport from the raw data pulled from the Riot
 // API tied to that summoner name
-func (s *SummonerClient) ScoutByName(name string) (report *SummonerReport, err error) {
+func (s *ScoutClient) ScoutByName(name string) (report *SummonerReport, err error) {
 	// Gather raw data from the Riot API
 	summonerData, err := s.GatherDataByName(name)
 	if err != nil {
@@ -64,7 +64,7 @@ func (s *SummonerClient) ScoutByName(name string) (report *SummonerReport, err e
 
 // GatherDataByName pulls all relevant data from the Riot API given a name and stores it within a SummonerData
 // struct that is then returned
-func (s *SummonerClient) GatherDataByName(name string) (data *SummonerData, err error) {
+func (s *ScoutClient) GatherDataByName(name string) (data *SummonerData, err error) {
 	// Query the Riot API's GetByName method to get account information relating to said name
 	summoner, err := s.c.Golio.Riot.LoL.Summoner.GetByName(name)
 	if err != nil {
@@ -120,7 +120,7 @@ func (s *SummonerClient) GatherDataByName(name string) (data *SummonerData, err 
 
 // AnalyzeData analyzes the raw data stored within a SummonerData struct, finds key information within the raw data,
 // and returns it in the form of a SummonerDataAnalysis struct
-func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (analysis *SummonerDataAnalysis, err error) {
+func (s *ScoutClient) AnalyzeData(summonerData *SummonerData) (analysis *SummonerDataAnalysis, err error) {
 	if summonerData == nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "AnalyzeData",
@@ -145,7 +145,7 @@ func (s *SummonerClient) AnalyzeData(summonerData *SummonerData) (analysis *Summ
 }
 
 // GenerateSummonerReport formats the given SummonerDataAnalysis in a way meaningful to the user
-func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (report *SummonerReport, err error) {
+func (s *ScoutClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (report *SummonerReport, err error) {
 	if analyzedData == nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "GenerateSummonerReport",
@@ -158,6 +158,6 @@ func (s *SummonerClient) GenerateSummonerReport(analyzedData *SummonerDataAnalys
 }
 
 // logger prepends the logger for the summoner module with a named tag
-func (s *SummonerClient) logger() logrus.FieldLogger {
+func (s *ScoutClient) logger() logrus.FieldLogger {
 	return s.c.Logger().WithField("category", "summoner")
 }
