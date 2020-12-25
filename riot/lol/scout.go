@@ -11,9 +11,9 @@ type ScoutClient struct {
 	c *internal.Client
 }
 
-// ScoutByName takes a summoner name as a string and creates a SummonerReport from the raw data pulled from the Riot
+// ScoutByName takes a summoner name as a string and creates a ScoutReport from the raw data pulled from the Riot
 // API tied to that summoner name
-func (s *ScoutClient) ScoutByName(name string) (report *SummonerReport, err error) {
+func (s *ScoutClient) ScoutByName(name string) (report *ScoutReport, err error) {
 	// Gather raw data from the Riot API
 	summonerData, err := s.GatherDataByName(name)
 	if err != nil {
@@ -79,25 +79,19 @@ func (s *ScoutClient) GatherDataByName(name string) (data *SummonerData, err err
 		"name": name,
 	}).Debug("Successfully fetched summoner")
 
-	summonerData := &SummonerData{
-		Summoner: summoner,
-	}
-
 	// Query the Riot API's ChampionMastery List method to get all champions and their mastery level
-	masteries, err := s.c.Golio.Riot.LoL.ChampionMastery.List(summoner.ID)
+	mastery, err := s.c.Golio.Riot.LoL.ChampionMastery.List(summoner.ID)
 	if err != nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "GatherDataByName",
 			"name":   name,
 			"err":    err,
-		}).Warn("Failed to fetch summoner masteries")
+		}).Warn("Failed to fetch summoner mastery")
 		return nil, err
 	}
 	s.logger().WithFields(logrus.Fields{
 		"name": name,
-	}).Debug("Successfully fetched masteries for summoner")
-
-	summonerData.Mastery = masteries
+	}).Debug("Successfully fetched mastery for summoner")
 
 	// Query the Riot API's Match List method to get the last 100 games they played
 	matches, err := s.c.Golio.Riot.LoL.Match.List(summoner.AccountID, 0, 100)
@@ -113,14 +107,33 @@ func (s *ScoutClient) GatherDataByName(name string) (data *SummonerData, err err
 		"name": name,
 	}).Debug("Successfully fetched matches for summoner")
 
-	summonerData.Matches = matches
+	// Query the Riot API's League List method to get the leagues for the summoner
+	leagues, err := s.c.Golio.Riot.LoL.League.ListBySummoner(summoner.ID)
+	if err != nil {
+		s.logger().WithFields(logrus.Fields{
+			"method": "GatherDataByName",
+			"name":   name,
+			"err":    err,
+		}).Warn("Failed to fetch summoner leagues")
+		return nil, err
+	}
+	s.logger().WithFields(logrus.Fields{
+		"name": name,
+	}).Debug("Successfully fetched leagues for summoner")
+
+	summonerData := &SummonerData{
+		Summoner: summoner,
+		Mastery:  mastery,
+		Matches:  matches,
+		Leagues:  leagues,
+	}
 
 	return summonerData, nil
 }
 
 // AnalyzeData analyzes the raw data stored within a SummonerData struct, finds key information within the raw data,
-// and returns it in the form of a SummonerDataAnalysis struct
-func (s *ScoutClient) AnalyzeData(summonerData *SummonerData) (analysis *SummonerDataAnalysis, err error) {
+// and returns it in the form of a ScoutAnalysis struct
+func (s *ScoutClient) AnalyzeData(summonerData *SummonerData) (analysis *ScoutAnalysis, err error) {
 	if summonerData == nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "AnalyzeData",
@@ -129,23 +142,11 @@ func (s *ScoutClient) AnalyzeData(summonerData *SummonerData) (analysis *Summone
 		return nil, api.ErrNilSummonerData
 	}
 
-	summoner := summonerData.Summoner
-
-	highestMastery := summonerData.Mastery
-	if len(highestMastery) > 10 {
-		highestMastery = highestMastery[:10]
-	}
-
-	analysis = &SummonerDataAnalysis{
-		Summoner:       summoner,
-		HighestMastery: highestMastery,
-	}
-
-	return analysis, nil
+	return &ScoutAnalysis{}, nil
 }
 
-// GenerateSummonerReport formats the given SummonerDataAnalysis in a way meaningful to the user
-func (s *ScoutClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis) (report *SummonerReport, err error) {
+// GenerateSummonerReport formats the given ScoutAnalysis in a way meaningful to the user
+func (s *ScoutClient) GenerateSummonerReport(analyzedData *ScoutAnalysis) (report *ScoutReport, err error) {
 	if analyzedData == nil {
 		s.logger().WithFields(logrus.Fields{
 			"method": "GenerateSummonerReport",
@@ -154,7 +155,7 @@ func (s *ScoutClient) GenerateSummonerReport(analyzedData *SummonerDataAnalysis)
 		return nil, api.ErrNilAnalyzedData
 	}
 
-	return &SummonerReport{}, nil
+	return &ScoutReport{}, nil
 }
 
 // logger prepends the logger for the summoner module with a named tag

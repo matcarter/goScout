@@ -12,7 +12,7 @@ import (
 
 var configFile = "../../internal/configuration/init.json"
 
-func TestSummonerClient_ScoutByName(t *testing.T) {
+func TestScoutClient_ScoutByName(t *testing.T) {
 	tests := []struct {
 		name     string
 		summoner string
@@ -64,7 +64,7 @@ func TestSummonerClient_ScoutByName(t *testing.T) {
 	}
 }
 
-func TestSummonerClient_GatherDataByName(t *testing.T) {
+func TestScoutClient_GatherDataByName(t *testing.T) {
 	tests := []struct {
 		name     string
 		summoner string
@@ -116,7 +116,7 @@ func TestSummonerClient_GatherDataByName(t *testing.T) {
 	}
 }
 
-func TestSummonerClient_AnalyzeData(t *testing.T) {
+func TestScoutClient_AnalyzeData(t *testing.T) {
 	tests := []struct {
 		name         string
 		summonerData *SummonerData
@@ -159,10 +159,10 @@ func TestSummonerClient_AnalyzeData(t *testing.T) {
 	}
 }
 
-func TestSummonerClient_GenerateSummonerReport(t *testing.T) {
+func TestScoutClient_GenerateSummonerReport(t *testing.T) {
 	tests := []struct {
 		name         string
-		analyzedData *SummonerDataAnalysis
+		analyzedData *ScoutAnalysis
 		wantErr      bool
 	}{
 		{
@@ -172,7 +172,7 @@ func TestSummonerClient_GenerateSummonerReport(t *testing.T) {
 		},
 		{
 			name:         "Good case: non-nil summoner data",
-			analyzedData: &SummonerDataAnalysis{},
+			analyzedData: &ScoutAnalysis{},
 			wantErr:      false,
 		},
 	}
